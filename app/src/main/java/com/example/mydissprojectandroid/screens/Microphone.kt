@@ -10,9 +10,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.log10
 
 @Composable
 fun MicrophoneScreen(
@@ -33,7 +39,8 @@ fun MicrophoneScreen(
     context: Context,
 ) {
     var isRecording by remember { mutableStateOf(false) }
-    var amplitude by remember { mutableStateOf(0) }
+    var amplitudeDB by remember { mutableStateOf(0.0) }
+//    var micIsOn by remember { mutableStateOf(false) }
 
     val microRequestLaunch =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -43,10 +50,12 @@ fun MicrophoneScreen(
         }
 
     Column(
-        modifier = modifier.fillMaxSize().padding(12.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(12.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+    ) {
         Button(
             onClick = {
                 if (ActivityCompat.checkSelfPermission(
@@ -59,9 +68,10 @@ fun MicrophoneScreen(
                     microRequestLaunch.launch(Manifest.permission.RECORD_AUDIO)
                 }
             }) {
-            Text(if (isRecording) "Stop" else "Record")
+            Text(if (isRecording) "Stop" else "Start")
         }
-        Text(text = "Amplitude: $amplitude")
+        Spacer(modifier = modifier.height(16.dp))
+        Text(text = "Amplitude: $amplitudeDB dB")
     }
 
     val audioRecord by remember {
@@ -88,13 +98,15 @@ fun MicrophoneScreen(
 
     LaunchedEffect(isRecording) {
         if (isRecording) {
+            Thread.sleep(100)
             audioRecord.startRecording()
             val buffer = ShortArray(1024)
             while (isRecording) {
                 val readResult = audioRecord.read(buffer, 0, buffer.size)
                 if (readResult > 0) {
-                    withContext(Dispatchers.Main) {
-                        amplitude = buffer.maxOrNull()?.toInt() ?: 0
+                    withContext(Dispatchers.IO) {
+                        val maxAmplitude = buffer.maxOrNull()?.toDouble() ?: 1.0
+                        amplitudeDB = 20 * log10(maxAmplitude / 32767) + 60
                     }
                 }
             }

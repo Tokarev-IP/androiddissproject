@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,9 +26,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mydissprojectandroid.screens.BluetoothScreen
 import com.example.mydissprojectandroid.screens.CameraComposableScreen
-import com.example.mydissprojectandroid.screens.FilesCompose
+import com.example.mydissprojectandroid.screens.FileCompose
 import com.example.mydissprojectandroid.screens.LocationScreen
-import com.example.mydissprojectandroid.screens.MediaCompose
+import com.example.mydissprojectandroid.screens.MediaComposeScreen
 import com.example.mydissprojectandroid.screens.MicrophoneScreen
 
 @Composable
@@ -77,13 +79,13 @@ fun MainActivityCompose(
                 )
             }
             composable(route = "MediaScreen") {
-                MediaCompose()
+                MediaComposeScreen(context = context)
             }
             composable(route = "FileScreen") {
-                FilesCompose(context = context)
+                FileCompose(context = context)
             }
             composable(route = "CameraScreen") {
-                CameraComposableScreen(context = context)
+                CameraComposableScreen()
             }
             composable(route = "BluetoothScreen") {
                 BluetoothScreen(context = context)
@@ -98,6 +100,7 @@ fun MainActivityCompose(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InitialScreen(
     modifier: Modifier = Modifier,
@@ -106,41 +109,50 @@ fun InitialScreen(
     goToMicro: () -> Unit,
     goToBluetooth: () -> Unit,
     goToCamera: () -> Unit,
-    goToLocation:() -> Unit,
+    goToLocation: () -> Unit,
 ) {
-    Column(
+    Scaffold(
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        OutlinedButton(onClick = { goToMedia() }) {
-            Text(text = "Media")
+        topBar = {
+            TopAppBar(title = { Text(text = "Android app")})
         }
-        Spacer(modifier = modifier.height(12.dp))
+    ) { padding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            OutlinedButton(onClick = { goToMedia() }) {
+                Text(text = "Media")
+            }
+            Spacer(modifier = modifier.height(8.dp))
 
-        OutlinedButton(onClick = { goToCamera() }) {
-            Text(text = "Camera")
-        }
-        Spacer(modifier = modifier.height(12.dp))
+            OutlinedButton(onClick = { goToCamera() }) {
+                Text(text = "Camera")
+            }
+            Spacer(modifier = modifier.height(8.dp))
 
-        OutlinedButton(onClick = { goToFile() }) {
-            Text(text = "File")
-        }
-        Spacer(modifier = modifier.height(12.dp))
+            OutlinedButton(onClick = { goToFile() }) {
+                Text(text = "File")
+            }
+            Spacer(modifier = modifier.height(8.dp))
 
-        OutlinedButton(onClick = { goToMicro() }) {
-            Text(text = "Micro")
-        }
-        Spacer(modifier = modifier.height(12.dp))
+            OutlinedButton(onClick = { goToMicro() }) {
+                Text(text = "Microphone")
+            }
+            Spacer(modifier = modifier.height(8.dp))
 
-        OutlinedButton(onClick = { goToBluetooth() }) {
-            Text(text = "Bluetooth")
-        }
-        Spacer(modifier = modifier.height(12.dp))
+            OutlinedButton(onClick = { goToBluetooth() }) {
+                Text(text = "Bluetooth")
+            }
+            Spacer(modifier = modifier.height(8.dp))
 
-        OutlinedButton(onClick = { goToLocation() }) {
-            Text(text = "Location")
+            OutlinedButton(onClick = { goToLocation() }) {
+                Text(text = "Location")
+            }
+            Spacer(modifier = modifier.height(8.dp))
         }
-        Spacer(modifier = modifier.height(12.dp))
     }
 }

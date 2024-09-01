@@ -30,19 +30,15 @@ fun BluetoothScreen(
 ) {
     val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     var isEnabled by remember { mutableStateOf(bluetoothAdapter?.isEnabled ?: false) }
-    var textButton by remember { mutableStateOf(if (isEnabled) "Turn Off" else "Turn On") }
 
-    val cameraRequestLaunch =
+    val bluetoothRequestLaunch =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted)
                 if (bluetoothAdapter?.isEnabled == true) {
                     val isDisable: Boolean = bluetoothAdapter.disable()
                     isEnabled = !isDisable
-//                    isEnabled = false
-//                    textButton = "Turn on"
                 } else if ((bluetoothAdapter?.isEnabled == false)) {
                     isEnabled = bluetoothAdapter.enable()
-//                    textButton = "Turn off"
                 }
         }
 
@@ -61,11 +57,14 @@ fun BluetoothScreen(
                         Manifest.permission.BLUETOOTH_CONNECT
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
+                    bluetoothRequestLaunch.launch(Manifest.permission.BLUETOOTH_CONNECT)
                 }
-                cameraRequestLaunch.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                bluetoothRequestLaunch.launch(Manifest.permission.BLUETOOTH_CONNECT)
             },
         ) {
-            Text(text = if (isEnabled) "Bluetooth is ON" else "Bluetooth is OFF")
+            Text(text = "Turn on/off the Bluetooth")
         }
+        Spacer(modifier = modifier.height(12.dp))
+        Text(text = "Status: Bluetooth is ${if (isEnabled) "ON" else "OFF"}")
     }
 }
